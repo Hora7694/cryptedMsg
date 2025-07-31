@@ -1,5 +1,6 @@
 import base64
 import os
+import re  # pour vérifier la fin de chaîne avec regex
 
 # Définir le chemin du dossier
 USER_FOLDER = os.path.expanduser(r"~\\cryptedMsg")
@@ -31,6 +32,7 @@ def write_password(line_number: int, password: str):
             lines[line_number - 1] = password + "\n"
             f.seek(0)
             f.writelines(lines)
+            print(f"\033[93mNouveau mot de passe enregistré à la ligne {line_number}.\033[0m")
         else:
             print("\033[91mErreur : ligne déjà occupée !\033[0m")
 
@@ -43,7 +45,14 @@ def programStart():
 # Init fichier/dossier
 init_password_file()
 
+# Flag pour saluer uniquement la première fois
+first_run = True
+
 while True:
+    if first_run:
+        print("\033[96mBonjour 👋\033[0m")
+        first_run = False
+
     userInputChoice = programStart()
     while userInputChoice not in ["C", "c", "D", "d", "Q", "q"]:
         print("\033[91mErreur entrée incorrecte !\033[0m")
@@ -58,11 +67,10 @@ while True:
         message = input("Entrez le message à chiffrer : ")
         key_input = input("Entrez la clé de cryptage (ou ' -numéro' pour utiliser un mot de passe enregistré) : ")
 
-        # Vérification si l'input correspond à " -X"
-        if key_input.startswith(" -") and key_input[2:].isdigit():
-            line_number = int(key_input[2:])
+        # Vérification avec regex si format " -nombre"
+        if re.fullmatch(r" -\d+", key_input):
+            line_number = int(key_input.strip()[1:])  # enlève l'espace et le tiret
             password = read_password(line_number)
-
             if password == "":
                 print(f"\033[93mAucun mot de passe trouvé à la ligne {line_number}.\033[0m")
                 new_pass = input("Entrez un mot de passe pour cette ligne : ")
@@ -78,27 +86,29 @@ while True:
 
     elif userInputChoice in ["D", "d"]:
         print("\033[93mMode décryptage choisi\033[0m\n")
-        message_full = input("Entrez le message à déchiffrer (format : msg -numéro) : ")
+        message_full = input("Entrez le message à déchiffrer (format : msg -numéro ou msg) : ")
 
-        if " -" not in message_full or not message_full.split(" -")[-1].isdigit():
-            print("\033[91mFormat invalide ! Utilisez : [message] -[ligne]\033[0m")
-        else:
-            message_b64, line_str = message_full.rsplit(" -", 1)
-            line_number = int(line_str)
-
+        # Vérifier si fin correspond à " -nombre"
+        match = re.search(r" -(\d+)$", message_full)
+        if match:
+            message_b64 = message_full[:match.start()]
+            line_number = int(match.group(1))
             password = read_password(line_number)
-
             if password == "":
-                print(f"\033[93mAucun mot de passe trouvé à la ligne {line_number}.\033[0m")
+                print(f"\033[93mAucun mot de passe trouvé à la ligne {line_number}.\033[0m\n")
                 new_pass = input("Entrez un mot de passe pour cette ligne : ")
                 write_password(line_number, new_pass)
                 password = new_pass
+        else:
+            # Si pas de -numéro, demander une clé
+            message_b64 = message_full
+            password = input("Aucune référence de mot de passe trouvée. Entrez une clé de décryptage : ")
 
-            try:
-                message_bytes = base64.b64decode(message_b64)
-                message_decrypte = ''.join(
-                    chr(b ^ ord(password[i % len(password)])) for i, b in enumerate(message_bytes)
-                )
-                print(f"\n\033[92mMessage décrypté : {message_decrypte}\033[0m")
-            except Exception as e:
-                print(f"\033[91mErreur de décryptage : {e}\033[0m")
+        try:
+            message_bytes = base64.b64decode(message_b64)
+            message_decrypte = ''.join(
+                chr(b ^ ord(password[i % len(password)])) for i, b in enumerate(message_bytes)
+            )
+            print(f"\n\033[92mMessage décrypté : {message_decrypte}\033[0m")
+        except Exception as e:
+            print(f"\033[91mErreur de décryptage : {e}\033[0m")
