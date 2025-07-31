@@ -1,39 +1,76 @@
-# 🔐 Script de Cryptage/Décryptage
+# 🔐 Script de Cryptage / Décryptage
 
-Ce script Python permet de **chiffrer** et **déchiffrer** des messages à l’aide d’une clé personnelle.  
-Il utilise une méthode simple basée sur l’algorithme **XOR** et encode les messages chiffrés en **Base64** pour être lisibles et transmissibles facilement.  
+Ce script Python permet de **chiffrer** et **déchiffrer** des messages à l’aide d’une **clé personnelle**.  
+Il utilise une méthode basée sur l’algorithme **XOR**, puis encode le résultat en **Base64** afin que le message soit lisible et facilement partageable.
+
+---
 
 ## ⚙️ Fonctionnement
 
-1. **Choix du mode**
-   - Au démarrage, le programme propose trois options :  
-     - `C` → Mode Cryptage  
-     - `D` → Mode Décryptage  
-     - `Q` → Quitter le programme  
+### 1. Choix du mode
+Au lancement, le programme propose 3 options :
 
-2. **Mode Cryptage (C)**
-   - L’utilisateur saisit un message et une clé de cryptage.
-   - Le script applique l’algorithme XOR entre chaque caractère du message et la clé.
-   - Le résultat est ensuite encodé en **Base64** pour être affiché sous une forme lisible et partageable.
+- `C` → **Chiffrer un message**  
+- `D` → **Déchiffrer un message**  
+- `Q` → **Quitter le programme**
 
-3. **Mode Décryptage (D)**
-   - L’utilisateur colle un message chiffré suivi d’un numéro de ligne, par ex. :
-     ```
-     Jx8zGBMSBxQ= -3
-     ```
-   - Le script lit le mot de passe stocké à la ligne correspondante du fichier `passwords.txt`.  
-   - Si la ligne est vide, il propose d’en enregistrer un nouveau.
-   - Le message est alors déchiffré avec ce mot de passe grâce à l’algorithme XOR.
+---
 
-4. **Stockage des mots de passe**
-   - Les mots de passe sont enregistrés dans le fichier :
+### 2. Mode Chiffrement (`C`)
+1. L’utilisateur saisit le message à chiffrer.  
+2. Il choisit ensuite une clé de cryptage :
+   - Soit une **nouvelle clé**, par exemple :
      ```
-     C:\Users\VOTRE_UTILISATEUR\cryptedMsg\passwords.txt
+     crypteIt
      ```
-   - Chaque ligne correspond à un mot de passe (jusqu’à 50 lignes créées par défaut).  
-   - Le numéro de ligne indiqué (`-3`, `-5`, etc.) détermine quel mot de passe utiliser.
+   - Soit une **clé enregistrée** dans le fichier de mots de passe, en indiquant son numéro de ligne précédé d’un **espace** et **tiret**.  
+     Exemple :
+     ```
+      -3
+     ```
+     (Cela utilisera la clé enregistrée à la 3ᵉ ligne du fichier.)
 
-5. **Quitter (Q)**
-   - Tapez `Q` pour fermer le programme à tout moment.
+3. Le script applique l’algorithme **XOR** entre chaque caractère du message et la clé choisie.  
+4. Le résultat est encodé en **Base64** et affiché, prêt à être transmis.
+
+---
+
+### 3. Mode Déchiffrement (`D`)
+1. L’utilisateur colle le **message chiffré** (exemple) :
+   ```
+   Jx8zGBMSBxQ=
+   ```
+
+2. Il fournit ensuite la **clé de cryptage associée** :
+   ```
+   crypteIt
+   ```
+
+3. Alternativement, il peut coller le message suivi du numéro de ligne d’une clé enregistrée. Exemple :
+   ```
+   Jx8zGBMSBxQ= -3
+   ```
+
+→ Le script ira lire la clé stockée à la ligne correspondante du fichier `passwords.txt`.
+
+4. Si la ligne indiquée est **vide**, le programme propose d’enregistrer une nouvelle clé.  
+5. Le message est alors **déchiffré** grâce à l’algorithme XOR.
+
+---
+
+### 4. Gestion et stockage des mots de passe
+- Les mots de passe sont enregistrés dans :
+   ```
+   C:\Users\VOTRE_UTILISATEUR\cryptedMsg\passwords.txt
+   ```
+
+- Chaque ligne correspond à une clé.  
+- Jusqu’à **50 lignes** sont créées par défaut.  
+- Le numéro utilisé (`-3`, `-5`, etc.) correspond à la **position de la clé** dans ce fichier.
+
+---
+
+### 5. Quitter le programme (`Q`)
+À tout moment, tapez : `Q` pour fermer le programme.
 
 ---
